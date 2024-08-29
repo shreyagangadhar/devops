@@ -67,6 +67,15 @@ pipeline {
     }
 
     stages {
+        stage('Update SSH Known Hosts') {
+            steps {
+                script {
+                    sh 'ssh-keygen -f "/var/lib/jenkins/.ssh/known_hosts" -R "github.com" || true'
+                    sh 'ssh-keyscan github.com >> /var/lib/jenkins/.ssh/known_hosts'
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'git@github.com:shreyagangadhar/devops.git'
