@@ -54,6 +54,7 @@
 //         }
 //     }
 // }
+
 pipeline {
     agent any
 
@@ -80,7 +81,13 @@ pipeline {
 
         stage('Linting') {
             steps {
-                sh 'flake8 .' || true
+                script {
+                    try {
+                        sh 'flake8 .'
+                    } catch (Exception e) {
+                        echo "Linting failed, but proceeding..."
+                    }
+                }
             }
         }
 
