@@ -168,23 +168,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Versioning') {
-            steps {
-                script {
-                    def version = readFile('version.txt').trim()
-                    def buildNumber = env.BUILD_NUMBER
-                    sh "echo ${version}.${buildNumber} > version.txt"
-                    withCredentials([usernamePassword(credentialsId: 'your-credentials-id', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                        sh "git config --global credential.helper 'cache --timeout=3600'"
-                        sh "git config --global user.name '${GIT_USERNAME}'"
-                        sh "git config --global user.password '${GIT_PASSWORD}'"
-                        sh "git commit -am 'Incremented version to ${version}.${buildNumber}'"
-                        sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/shreyagangadhar/devops.git HEAD:main"
-                    }
-                }
-            }
-        }
     }
 
     post {
