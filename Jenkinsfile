@@ -4,7 +4,7 @@ pipeline {
     environment {
         AWS_REGION = 'us-west-2'
         ECR_REPOSITORY = 'jenkins-eks'
-        IMAGE_TAG = "test"  // Constant image tag
+        IMAGE_TAG = "test1"  // Constant image tag
         ECR_REGISTRY = '300703960986.dkr.ecr.us-west-2.amazonaws.com'
     }
 
