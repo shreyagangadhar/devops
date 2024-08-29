@@ -178,7 +178,139 @@ pipeline {
                     sh "git push --set-upstream origin main"
                 }
             }
+        }pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'us-west-2'
+        ECR_REPOSITORY = 'jenkins-eks'
+        IMAGE_TAG = "test1"
+        ECR_REGISTRY = '300703960986.dkr.ecr.us-west-2.amazonaws.com'
+        PATH = "/var/lib/jenkins/.local/bin:$PATH"
+    }
+
+    stages {
+        stage('Update SSH Known Hosts') {
+            steps {
+                script {
+                    sh 'ssh-keygen -f "/var/lib/jenkins/.ssh/known_hosts" -R "github.com" || true'
+                    sh 'ssh-keyscan github.com >> /var/lib/jenkins/.ssh/known_hosts'
+                }
+            }
         }
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/shreyagangadhar/devops.git', credentialsId: 'your-credentials-id'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'pip install --user -r requirements.test.txt'
+            }
+        }
+
+        stage('Linting') {
+            steps {
+                script {
+                    try {
+                        sh 'flake8 .'
+                    } catch (Exception e) {
+                        echo "Linting failed, but proceeding..."
+                    }
+                }
+            }
+        }
+
+        stage('Static Typing') {
+            steps {
+                script {
+                    try {
+                        sh 'mypy .'
+                    } catch (Exception e) {
+                        echo "Static typing failed, but proceeding..."
+                    }
+                }
+            }
+        }
+
+        stage('Testing') {
+            steps {
+                script {
+                    try {
+                        sh 'pytest --cov=app'
+                    } catch (Exception e) {
+                        echo "Tests failed, but proceeding..."
+                    }
+                }
+            }
+        }
+
+        stage('Database Migrations') {
+            steps {
+                script {
+                    try {
+                        sh 'flask db upgrade'
+                    } catch (Exception e) {
+                        echo "Database migrations failed, but proceeding..."
+                    }
+                }
+            }
+        }
+
+        stage('Login to ECR') {
+            steps {
+                script {
+                    sh 'aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY'
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                script {
+                    sh 'docker build -t $ECR_REPOSITORY:$IMAGE_TAG .'
+                }
+            }
+        }
+
+        stage('Tag Image') {
+            steps {
+                script {
+                    sh 'docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG'
+                }
+            }
+        }
+
+        stage('Push to ECR') {
+            steps {
+                script {
+                    sh 'docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG'
+                }
+            }
+        }
+
+        stage('Versioning') {
+            steps {
+                script {
+                    def version = readFile('version.txt').trim()
+                    def buildNumber = env.BUILD_NUMBER
+                    sh "echo ${version}.${buildNumber} > version.txt"
+                    sh "git commit -am 'Incremented version to ${version}.${buildNumber}'"
+                    sh "git push --set-upstream origin main"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
+
     }
 
     post {
