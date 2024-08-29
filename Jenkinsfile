@@ -160,17 +160,17 @@ pipeline {
         }
 
         stage('Versioning') {
-    steps {
-        script {
-            def version = readFile('version.txt').trim()
-            def buildNumber = env.BUILD_NUMBER
-            sh "echo ${version}.${buildNumber} > version.txt"
-            sh "git commit -am 'Incremented version to ${version}.${buildNumber}'"
-            sh "git push --set-upstream origin main"
+            steps {
+                script {
+                    def version = readFile('version.txt').trim()
+                    def buildNumber = env.BUILD_NUMBER
+                    sh "echo ${version}.${buildNumber} > version.txt"
+                    sh "git commit -am 'Incremented version to ${version}.${buildNumber}'"
+                    sh "git push --set-upstream origin main"
+                }
+            }
         }
     }
-}
-
 
     post {
         always {
