@@ -60,8 +60,9 @@ pipeline {
     environment {
         AWS_REGION = 'us-west-2'
         ECR_REPOSITORY = 'jenkins-eks'
-        IMAGE_TAG = "test1"  // Constant image tag
+        IMAGE_TAG = "test1"
         ECR_REGISTRY = '300703960986.dkr.ecr.us-west-2.amazonaws.com'
+        PATH = "/var/lib/jenkins/.local/bin:$PATH"
     }
 
     stages {
@@ -73,7 +74,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'pip install -r requirements.test.txt'
+                sh 'pip install --user -r requirements.test.txt'
             }
         }
 
