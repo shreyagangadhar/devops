@@ -86,6 +86,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh 'pip install --user -r requirements.test.txt'
+                sh 'pip install --user coverage'
             }
         }
 
@@ -113,13 +114,15 @@ pipeline {
             }
         }
 
-        stage('Testing') {
+        stage('Testing with Coverage') {
             steps {
                 script {
                     try {
-                        sh 'pytest --cov=app'
+                        sh 'coverage run -m pytest'
+                        sh 'coverage report'
+                        sh 'coverage xml -o coverage.xml'  // Generates XML report for integration with CodeCov/Coveralls
                     } catch (Exception e) {
-                        echo "Tests failed, but proceeding..."
+                        echo "Tests or coverage failed, but proceeding..."
                     }
                 }
             }
