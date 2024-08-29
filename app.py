@@ -94,4 +94,4 @@ def version() -> wrappers.Response:
 
 
 if __name__ == '__main__':
-    app.run(debug=APP_DEBUG)
+    app.run(debug=APP_DEBUG ,port=8001)
