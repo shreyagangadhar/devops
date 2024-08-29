@@ -69,7 +69,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/shreyagangadhar/devops.git'
+                git branch: 'main', url: 'git@github.com:shreyagangadhar/devops.git'
             }
         }
 
