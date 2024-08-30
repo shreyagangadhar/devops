@@ -120,7 +120,7 @@ pipeline {
                     try {
                         sh 'coverage run -m pytest'
                         sh 'coverage report'
-                        sh 'coverage xml -o coverage.xml'  // Generates XML report for integration with CodeCov/Coveralls
+                        sh 'coverage xml -o coverage.xml'  
                     } catch (Exception e) {
                         echo "Tests or coverage failed, but proceeding..."
                     }

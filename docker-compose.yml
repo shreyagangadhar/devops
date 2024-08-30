@@ -51,15 +51,5 @@ services:
       USER_NAME: "Your Name"
       USER_URL: "https://yourwebsite.com"
       DATABASE_URL: '${DATABASE_URL_FILE}'
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
     command: >
       bash -c "flask run"
